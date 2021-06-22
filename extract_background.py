@@ -1,25 +1,46 @@
 # -*- coding: utf-8 -*-
-import cv2, os
-rt = './data/track2-dataset'
-videos = os.listdir(rt)
+import cv2, os,json
+
+def get_videos():
+  
+  
+  with open('data/dataset.json', 'r') as f:
+    data = json.load(f)
+
+  
+  videos = data['videos']
+
+  return videos 
+
+
+
+videos =get_videos()
+
+rt = "./data/videos"
+
 #path for original frames
 wrt_ori = './data/all_imgs/all'
 #path for background frames
 wrt_bg = './data/all_imgs/bg'
-if not os.path.exist(wrt_ori):
+
+if not os.path.exists(wrt_ori):
     os.mkdir(wrt_ori)
-if not os.path.exist(wrt_bg):
+if not os.path.exists(wrt_bg):
     os.mkdir(wrt_bg)
 
 for video in videos:
-    print (video)
-    if not os.path.exists(os.path.join(wrt_bg, video.split('.')[0])):
-        os.mkdir(os.path.join(wrt_bg, video.split('.')[0]))
-    if not os.path.exists(os.path.join(wrt_ori, video.split('.')[0])):
-        os.mkdir(os.path.join(wrt_ori, video.split('.')[0]))
+  print(video["name"])
+
+
+for video in videos:
+    print (video["name"])
+    if not os.path.exists(os.path.join(wrt_bg, video["name"].split('.')[0])):
+        os.mkdir(os.path.join(wrt_bg, video["name"].split('.')[0]))
+    if not os.path.exists(os.path.join(wrt_ori, video["name"].split('.')[0])):
+        os.mkdir(os.path.join(wrt_ori, video["name"].split('.')[0]))
 
     #read video
-    cap = cv2.VideoCapture(os.path.join(rt, video))
+    cap = cv2.VideoCapture(video['path'])
     ret, frame = cap.read()
 
     #h, w, _ = frame.shape
@@ -36,8 +57,8 @@ for video in videos:
         fg_mask = bs.apply(frame)
         bg_img = bs.getBackgroundImage()
         #out.write(bg_img)
-        cv2.imwrite(os.path.join(wrt_bg, video.split('.')[0], str(int(count)).zfill(3)+'.jpg'), bg_img)
-        cv2.imwrite(os.path.join(wrt_ori, video.split('.')[0], str(int(count)).zfill(3)+'.jpg'), frame)
+        cv2.imwrite(os.path.join(wrt_bg, video["name"].split('.')[0], str(int(count)).zfill(3)+'.jpg'), bg_img)
+        cv2.imwrite(os.path.join(wrt_ori, video["name"].split('.')[0], str(int(count)).zfill(3)+'.jpg'), frame)
         ret, frame = cap.read()
         count += 1
     #out.release()
